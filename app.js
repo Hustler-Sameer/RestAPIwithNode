@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+// const cors = require('cors');
 
 const feedRoutes = require('./routes/feed');
 const mongoose = require('mongoose');
@@ -9,16 +10,22 @@ const multer = require('multer');
 
 const app = express();
 
-
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+});
 //upload file part 
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, callbackFn) => {
-        callbackFn(null, 'images');
+        // callbackFn(null, path.join(__dirname, 'images'));
+        callbackFn(null , 'images')
 
     },
     filename: (req, file, callbackFn1) => {
-        callbackFn1(null, new Date().toISOString() + '-' + file.originalname);
+        callbackFn1(null, new Date().toISOString().replace(/:/g, '-')  + file.originalname);
     }
 })
 const fileFilter1 = (req, file, callbackFn2) => {
@@ -32,12 +39,7 @@ app.use(multer({storage: fileStorage , fileFilter: fileFilter1}).single('image')
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
+
 
 app.use('/feed', feedRoutes);
 app.use("/images", express.static(path.join(__dirname, 'images')));
@@ -62,8 +64,8 @@ mongoose.connect(
         });
     }
 ).catch(err => console.log(err))
-
-
+// app.use(cors({ origin: 'http://localhost:3000' }));
+// 
 // sameerkurkure22
 // pr@nit@123
 

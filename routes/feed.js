@@ -20,4 +20,14 @@ router.post('/post', [
 
 router.get('/post/:postId' , feedController.getPost );
 
+router.put('/post/:postId' ,  [
+    check('title').trim().isLength({min:5}),
+    // also note to keep the validators same as frontend code
+    
+    check('content').trim().isLength({min: 5})
+] , feedController.updatePost);
+//put /  patch request have request body just like post request
+
+
+
 module.exports = router;
