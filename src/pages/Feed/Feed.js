@@ -51,7 +51,11 @@ class Feed extends Component {
       this.setState({ postPage: page });
     }
     // ?page will now add pagination to our ui
-    fetch('http://localhost:8080/feed/posts?page=' + page)
+    fetch('http://localhost:8080/feed/posts?page=' + page , {
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
+    })
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch posts.');
@@ -127,7 +131,12 @@ class Feed extends Component {
       //   'Content-Type': 'application/json'
       // },
       // formData will automatically set the headers for us
-      body: formData
+      body: formData , 
+      headers:  {
+        headers: {
+          Authorization: 'Bearer ' + this.props.token
+        }
+      }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -180,7 +189,12 @@ class Feed extends Component {
   deletePostHandler = postId => {
     this.setState({ postsLoading: true });
     fetch('http://localhost:8080/feed/post/' + postId , {
-      method: 'DELETE'
+      method: 'DELETE', 
+      headers :  {
+        headers: {
+          Authorization: 'Bearer ' + this.props.token
+        }
+      }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
