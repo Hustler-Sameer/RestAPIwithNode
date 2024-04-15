@@ -133,9 +133,9 @@ class Feed extends Component {
       // formData will automatically set the headers for us
       body: formData , 
       headers:  {
-        headers: {
+      
           Authorization: 'Bearer ' + this.props.token
-        }
+        
       }
     })
       .then(res => {
@@ -191,9 +191,7 @@ class Feed extends Component {
     fetch('http://localhost:8080/feed/post/' + postId , {
       method: 'DELETE', 
       headers :  {
-        headers: {
-          Authorization: 'Bearer ' + this.props.token
-        }
+        Authorization: 'Bearer ' + this.props.token    
       }
     })
       .then(res => {
@@ -269,8 +267,9 @@ class Feed extends Component {
               lastPage={Math.ceil(this.state.totalPosts / 2)}
               currentPage={this.state.postPage}
             >
-              {this.state.posts.map(post => (
-                <Post
+              {this.state.posts.map(post => {
+                console.log(post)
+                return <Post
                   key={post._id}
                   id={post._id}
                   author={post.creator.name}
@@ -281,7 +280,7 @@ class Feed extends Component {
                   onStartEdit={this.startEditPostHandler.bind(this, post._id)}
                   onDelete={this.deletePostHandler.bind(this, post._id)}
                 />
-              ))}
+  })}
             </Paginator>
           )}
         </section>
