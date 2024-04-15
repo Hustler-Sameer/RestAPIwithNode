@@ -3,13 +3,15 @@ const {check} = require('express-validator');
 // addding body as we are going to validate request body hence we are adding request body validator and adding validation using middlewares
 const feedController = require('../controllers/feed');
 
+const isAuth = require('../middleware/is-auth')
 const router = express.Router();
 
 // GET /feed/posts
-router.get('/posts', feedController.getPosts);
+// now this will only 
+router.get('/posts', isAuth , feedController.getPosts);
 
 // POST /feed/post
-router.post('/post', [
+router.post('/post',  isAuth, [
     check('title').trim().isLength({min:5}),
     // also note to keep the validators same as frontend code
     
@@ -18,21 +20,21 @@ router.post('/post', [
 
 
 
-router.get('/post/:postId' , feedController.getPost );
+router.get('/post/:postId' ,  isAuth, feedController.getPost );
 
 router.put('/post/:postId' ,  [
     check('title').trim().isLength({min:5}),
     // also note to keep the validators same as frontend code
     
     check('content').trim().isLength({min: 5})
-] , feedController.updatePost);
+] ,isAuth ,  feedController.updatePost);
 //put /  patch request have request body just like post request
 
 
 
 // delete route
 
-router.delete('/post/:postId' , feedController.deletePost);
+router.delete('/post/:postId' , isAuth , feedController.deletePost);
 
 
 module.exports = router;
