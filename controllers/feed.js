@@ -5,6 +5,7 @@ const path = require("path");
 const Post = require("../models/post");
 const post = require("../models/post");
 const User = require("../models/users");
+const io = require("../socket")
 
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -17,6 +18,7 @@ exports.getPosts = (req, res, next) => {
     .then((count) => {
       totalItems = count;
       return Post.find()
+        .populate('creator')
         .skip((currentPage - 1) * perPage)
         .limit(perPage);
     })
@@ -80,18 +82,21 @@ exports.createPost = (req, res, next) => {
   post
     .save()
     .then((result) => {
+
       return User.findById(req.userId);
-    }).then( user => {
+    }).then(user => {
       creator = user;
       user.post.push(post);
       console.log(user);
-      return user.save();  
+      return user.save();
     })
-    .then(result=> {
+    .then(result => {
+      io.getIO().emit('posts', { action: 'create', post: { ...post._doc, creator: { _id: req.userId, name: creator.name } } })
+
       res.status(201).json({
         message: "Post created successfully!",
         post: post,
-        creator: {_id: creator._id , name: creator.name}
+        creator: { _id: creator._id, name: creator.name }
       });
     }
     )
@@ -159,8 +164,8 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      if(post.creator.toString() !== req.userId){
-        console.log('creator is not matching' , post.creator.toString() , req.userId );
+      if (post.creator.toString() !== req.userId) {
+        console.log('creator is not matching', post.creator.toString(), req.userId);
         const error = new Error('Not authorized !');
         error.statusCode = 403;
         throw error;
@@ -197,25 +202,25 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      if(post.creator.toString() !== req.userId){
-        console.log('creator is not matching' , post.creator.toString() , req.userId );
+      if (post.creator.toString() !== req.userId) {
+        console.log('creator is not matching', post.creator.toString(), req.userId);
         const error = new Error('Not authorized !');
         error.statusCode = 403;
         throw error;
-      } 
+      }
 
       clearImage(post.imageUrl);
       return Post.findByIdAndDelete(postId);
     })
     .then((result) => {
       return User.findById(req.userId);
-    
+
     })
     .then((user) => {
       // console.log(result);
       user.post.pull(postId);
       return user.save();
-     
+
     })
     .then(result => {
       res.status(200).json({ message: "Deleted!" });

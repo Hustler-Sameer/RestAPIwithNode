@@ -64,9 +64,27 @@ mongoose.connect(
     "mongodb+srv://sameerkurkure22:ODctwBlLKEahQGwH@restapi.owwdwfh.mongodb.net/?retryWrites=true&w=majority&appName=RestApi"
 ).then(
     result => {
-        app.listen(8080, () => {
+        
+     const server = app.listen(8080, () => {
             console.log(`The app is running on port 8080`);
         });
+        //now setting up socket io
+        console.log('starting socket work!')
+        // const io = require('socket.io')(server , {
+        //     cors: {
+        //         origin: "http://localhost:3000", // Allow requests from this origin
+        //         methods: ["GET", "POST"] // Allow only GET and POST requests
+        //       }
+        // });
+        const io = require('./socket').init(server , {
+            cors: {
+                origin: "http://localhost:3000", // Allow requests from this origin
+                methods: ["GET", "POST"] // Allow only GET and POST requests
+              }
+        });
+        io.on('connection' , socket => {
+            console.log('Someone Connected!!!')
+        })
     }
 ).catch(err => console.log(err))
 // app.use(cors({ origin: 'http://localhost:3000' }));
